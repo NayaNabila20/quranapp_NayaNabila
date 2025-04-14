@@ -4,7 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.* // Pastikan ini diimpor, bukan hanya material.icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,11 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quranapp.data.model.Surah
 import com.example.quranapp.presentation.viewmodel.QuranViewModel
+// import androidx.compose.material.icons.Icons // Tidak perlu jika ikon tidak dipakai
+// import androidx.compose.material.icons.filled.Search // HAPUS IMPORT INI
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SurahScreen(
     viewModel: QuranViewModel = viewModel(),
-    onSurahClick: (Int) -> Unit // Untuk navigasi ke halaman detail berdasarkan nomor surah
+    onSurahClick: (Int) -> Unit // <-- Parameter ini HARUS TETAP ADA untuk klik
 ) {
     val surahList by viewModel.surahList.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -26,29 +29,46 @@ fun SurahScreen(
         viewModel.fetchSurahList()
     }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
-        when {
-            isLoading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-
-            errorMessage != null -> {
-                Text(
-                    text = errorMessage ?: "Terjadi kesalahan",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.Center)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Al-Quran (Daftar Surah)") },
+                // Tidak ada lagi blok 'actions' di sini
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    // actionIconContentColor tidak relevan lagi tanpa actions
                 )
-            }
+            )
+        }
+    ) { paddingValues ->
 
-            else -> {
-                LazyColumn {
-                    items(surahList) { surah ->
-                        SurahItem(
-                            surah = surah,
-                            onClick = { onSurahClick(surah.number) } // Navigasi dengan number
-                        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+        ) {
+            when {
+                isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                errorMessage != null -> {
+                    Text(
+                        text = errorMessage ?: "Terjadi kesalahan",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                else -> {
+                    LazyColumn {
+                        items(surahList) { surah ->
+                            SurahItem(
+                                surah = surah,
+                                // V-- Ini menggunakan onSurahClick yang masih ada
+                                onClick = { onSurahClick(surah.number) }
+                            )
+                        }
                     }
                 }
             }
@@ -56,6 +76,7 @@ fun SurahScreen(
     }
 }
 
+// Fungsi SurahItem tetap sama
 @Composable
 fun SurahItem(surah: Surah, onClick: () -> Unit) {
     Card(

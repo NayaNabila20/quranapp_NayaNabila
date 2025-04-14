@@ -10,9 +10,6 @@ interface QuranApiService {
     @GET("v1/surah")
     suspend fun getSurahList(): SurahResponse
 
-    @GET("v1/surah")
-    suspend fun getAllSurah(): SurahResponse
-
     @GET("v1/surah/{number}/editions/quran-uthmani,id.indonesian")
     suspend fun getAyahsForSurah(
         @Path("number") surahNumber: Int

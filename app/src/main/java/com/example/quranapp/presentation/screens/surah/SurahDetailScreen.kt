@@ -57,24 +57,37 @@ fun SurahDetailScreen(surahNumber: Int, viewModel: SurahDetailViewModel = viewMo
 
 @Composable
 fun AyahItem(number: Int, arabic: String, translation: String) {
+
+    fun toArabicNumber(value: Int): String {
+        val arabicNumerals = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
+        return value.toString().mapNotNull { digitChar ->
+            digitChar.toString().toIntOrNull()?.let { digit -> arabicNumerals.getOrNull(digit) }
+        }.joinToString("")
+    }
+
+    val arabicEndSymbol = "\u06DD" // ARABIC END OF AYAH symbol
+
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        // 1. Teks Arab dengan HANYA SATU simbol ۝ sebelum nomor
         Text(
-            text = "$number.",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = arabic,
+            // Format BARU: [Teks Arab] ۝[Nomor Arab]
+
+            text = "$arabic $arabicEndSymbol${toArabicNumber(number)}", // <- Perubahan di sini
             textAlign = TextAlign.Right,
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(4.dp))
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 2. Teks Terjemahan (tetap sama)
         Text(
-            text = translation,
-            style = MaterialTheme.typography.bodyMedium
+            text = "$number. $translation",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
         )
-        Divider(modifier = Modifier.padding(top = 8.dp))
+
+        Divider(modifier = Modifier.padding(top = 16.dp))
     }
 }
