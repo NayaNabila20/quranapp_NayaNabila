@@ -14,4 +14,3 @@ data class Surah(
     val numberOfAyahs: Int,
     val revelationType: String
 )
-
